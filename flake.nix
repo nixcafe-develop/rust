@@ -16,7 +16,7 @@
   outputs =
     inputs:
     let
-      # TODO: write your own module loader with container support.
+      toml = fromTOML (builtins.readFile ./Cargo.toml);
       lib = inputs.snowfall-lib.mkLib {
         # snowfall doc: https://snowfall.org/guides/lib/quickstart/
         inherit inputs;
@@ -24,10 +24,10 @@
         src = ./.;
 
         snowfall = {
-          namespace = "example";
+          namespace = toml.package.name or "example";
           meta = {
-            name = "example-flake";
-            title = "example' Nix Flakes";
+            name = "${toml.package.name or "example"}-flake";
+            title = "${toml.package.name or "example"}'s Nix Flakes";
           };
         };
       };
