@@ -1,14 +1,16 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # nixos-unstable (use flakehub to avoid github api limit)
+    nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1.*.tar.gz";
 
     snowfall-lib = {
-      url = "github:snowfallorg/lib";
+      url = "https://flakehub.com/f/snowfallorg/lib/*.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # see: https://github.com/cachix/git-hooks.nix
     pre-commit-hooks = {
-      url = "github:cachix/git-hooks.nix";
+      url = "https://flakehub.com/f/cachix/git-hooks.nix/0.1.*.tar.gz";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -17,13 +19,15 @@
     inputs:
     let
       toml = fromTOML (builtins.readFile ./Cargo.toml);
-      lib = inputs.snowfall-lib.mkLib {
+      lib = inputs.snowfall-lib.mkLib rec {
         # snowfall doc: https://snowfall.org/guides/lib/quickstart/
         inherit inputs;
         # root dir
         src = ./.;
 
         snowfall = {
+          root = "${src}/develop";
+
           namespace = toml.package.name or "example";
           meta = {
             name = "${toml.package.name or "example"}-flake";
@@ -33,12 +37,6 @@
       };
     in
     lib.mkFlake {
-
-      channels-config = {
-        allowUnfree = true;
-        permittedInsecurePackages = [ ];
-      };
-
       outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
     };
 }

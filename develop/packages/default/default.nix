@@ -4,14 +4,14 @@
 }:
 let
   toolchain = pkgs.rustPlatform;
-  toml = fromTOML (builtins.readFile ../../Cargo.toml);
+  toml = fromTOML (builtins.readFile ../../../Cargo.toml);
 in
 # Executed by `nix build`
 toolchain.buildRustPackage {
   pname = toml.package.name or "example";
   version = toml.package.version or "1.0.0";
-  src = ../../.;
-  cargoLock.lockFile = ../../Cargo.lock;
+  src = ../../../.;
+  cargoLock.lockFile = ../../../Cargo.lock;
 
   nativeBuildInputs = with pkgs; [
     pkg-config

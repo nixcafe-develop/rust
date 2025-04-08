@@ -8,11 +8,11 @@ let
   package = inputs.self.packages.${system}.default;
 in
 inputs.pre-commit-hooks.lib.${system}.run {
-  src = ../../.;
+  src = ../../../.;
   settings = {
     rust = {
       check.cargoDeps = pkgs.rustPlatform.importCargoLock {
-        lockFile = ../../Cargo.lock;
+        lockFile = ../../../Cargo.lock;
       };
     };
   };
