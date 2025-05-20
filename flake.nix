@@ -17,26 +17,9 @@
 
   outputs =
     inputs:
-    let
-      toml = fromTOML (builtins.readFile ./Cargo.toml);
-      lib = inputs.snowfall-lib.mkLib rec {
-        # snowfall doc: https://snowfall.org/guides/lib/quickstart/
-        inherit inputs;
-        # root dir
-        src = ./.;
-
-        snowfall = {
-          root = "${src}/develop";
-
-          namespace = toml.package.name or "example";
-          meta = {
-            name = "${toml.package.name or "example"}-flake";
-            title = "${toml.package.name or "example"}'s Nix Flakes";
-          };
-        };
-      };
-    in
-    lib.mkFlake {
-      outputs-builder = channels: { formatter = channels.nixpkgs.nixfmt-rfc-style; };
+    inputs.snowfall-lib.mkFlake rec {
+      inherit inputs;
+      src = ./.;
+      snowfall.root = "${src}/develop";
     };
 }
