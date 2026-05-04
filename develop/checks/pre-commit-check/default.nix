@@ -18,7 +18,7 @@ inputs.pre-commit-hooks.lib.${system}.run {
   };
   hooks = {
     # formatter
-    nixfmt-rfc-style.enable = true;
+    nixfmt.enable = true;
     deadnix.enable = true;
     statix.enable = true;
     # rust
