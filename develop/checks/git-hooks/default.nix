@@ -7,7 +7,7 @@
 let
   package = inputs.self.packages.${system}.default;
 in
-inputs.pre-commit-hooks.lib.${system}.run {
+inputs.git-hooks.lib.${system}.run {
   src = ../../../.;
   settings = {
     rust = {
@@ -17,11 +17,9 @@ inputs.pre-commit-hooks.lib.${system}.run {
     };
   };
   hooks = {
-    # formatter
     nixfmt.enable = true;
     deadnix.enable = true;
     statix.enable = true;
-    # rust
     cargo-check = {
       enable = true;
       extraPackages = package.buildInputs ++ package.nativeBuildInputs;
