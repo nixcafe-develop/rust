@@ -1,8 +1,39 @@
 # Nix Flake · Rust Dev Template
 
-> purr · git-hooks · rust · cargo · clippy · rustfmt · reproducible · nix-flake · direnv
+> purr · git-hooks · rust · cargo · clippy · nix-flake
 
 Nix flake template for Rust development — batteries-included dev shell, pre-commit guardrails, and reproducible builds via `cargo` + `rustPlatform`. Drop into `direnv`, start hacking.
+
+Part of the [develop-templates](https://github.com/nixcafe/develop-templates) collection (`nix flake init`-ready).
+
+## Quick Start
+
+### `nix flake init`
+
+```bash
+nix flake init -t "github:nixcafe/develop-templates#rust" --refresh
+```
+
+Register an alias:
+```bash
+nix registry add beans "github:nixcafe/develop-templates"
+nix flake init -t beans#rust
+```
+
+> **Tip**: With [cattery-modules](https://github.com/nixcafe/cattery-modules), `beans` is pre-registered.
+
+### Create from Template
+
+```bash
+gh repo create my-rust-project --template nixcafe/rust --clone
+```
+
+### Enter the Dev Shell
+
+```bash
+direnv allow
+cargo build
+```
 
 ## What’s Inside
 
@@ -13,17 +44,6 @@ Nix flake template for Rust development — batteries-included dev shell, pre-co
 | `rustfmt` | Rust formatter — consistent code style |
 | `pkg-config` | Build dependency discovery |
 | `RUST_SRC_PATH` | LSP source path for `rust-analyzer` |
-
-## Getting Started
-
-```bash
-# install direnv hook if you haven't:
-# https://direnv.net/docs/hook.html
-
-git clone <this-template>
-cd rust
-direnv allow
-```
 
 ## Customizing
 
