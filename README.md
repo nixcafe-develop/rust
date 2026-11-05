@@ -25,7 +25,7 @@ nix flake init -t beans#rust
 ### Create from Template
 
 ```bash
-gh repo create my-rust-project --template nixcafe/rust --clone
+gh repo create my-rust-project --template nixcafe-develop/rust --clone
 ```
 
 ### Enter the Dev Shell
