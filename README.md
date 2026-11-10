@@ -1,66 +1,64 @@
-# Nix Flake · Rust Dev Template
+# Rust development template
 
-> purr · git-hooks · rust · cargo · clippy · nix-flake
+Nix flake template for Rust projects. The development shell provides `cargo`, `rustc`, `clippy`, `rustfmt`, and `pkg-config`. The flake builds the crate with `buildRustPackage` and `Cargo.lock`, and enables pre-commit hooks for Nix and Rust files. It is built with [purr](https://flakehub.com/f/nixcafe/purr) and [git-hooks.nix](https://flakehub.com/f/cachix/git-hooks.nix).
 
-Nix flake template for Rust development — batteries-included dev shell, pre-commit guardrails, and reproducible builds via `cargo` + `rustPlatform`. Drop into `direnv`, start hacking.
+This repository is part of the [develop-templates](https://github.com/nixcafe/develop-templates) collection.
 
-Part of the [develop-templates](https://github.com/nixcafe/develop-templates) collection (`nix flake init`-ready).
+## Quick start
 
-## Quick Start
-
-### `nix flake init`
+Create a project from the template:
 
 ```bash
 nix flake init -t "github:nixcafe/develop-templates#rust" --refresh
 ```
 
-Register an alias:
+To use a shorter registry name:
+
 ```bash
 nix registry add beans "github:nixcafe/develop-templates"
 nix flake init -t beans#rust
 ```
 
-> **Tip**: With [cattery-modules](https://github.com/nixcafe/cattery-modules), `beans` is pre-registered.
+If you use [cattery-modules](https://github.com/nixcafe/cattery-modules), the `beans` registry entry already exists.
 
-### Create from Template
+You can also create a GitHub repository from this template:
 
 ```bash
 gh repo create my-rust-project --template nixcafe-develop/rust --clone
 ```
 
-### Enter the Dev Shell
+Enter the development shell:
 
 ```bash
 direnv allow
 cargo build
 ```
 
-## What’s Inside
+## What's included
 
-| Tool | Purpose |
+| Item | Purpose |
 |------|---------|
-| `cargo` / `rustc` / `rustLibSrc` | Rust toolchain via `rustPlatform` |
-| `clippy` | Rust linter — catches common mistakes |
-| `rustfmt` | Rust formatter — consistent code style |
+| `cargo`, `rustc` | Toolchain from `pkgs.rustPlatform` |
+| `clippy` | Rust linter |
+| `rustfmt` | Rust formatter |
 | `pkg-config` | Build dependency discovery |
-| `RUST_SRC_PATH` | LSP source path for `rust-analyzer` |
+| `RUST_SRC_PATH` | Standard library sources for `rust-analyzer` |
 
-## Customizing
+`RUST_SRC_PATH` points to `toolchain.rustLibSrc`.
 
-### Change Rust Toolchain
+## Customization
 
-Override `rustPlatform` in `develop/shells/default/default.nix`:
+### Change the Rust toolchain
 
-```nix
-# pin to a specific nightly
-toolchain = pkgs.rust-bin.nightly.latest.default.override {
-  extensions = [ "rust-src" ];
-};
-```
+The shell and the package build use `pkgs.rustPlatform` from the nixpkgs input. To use a different toolchain, replace the `toolchain` binding in `develop/shells/default/default.nix` and `develop/packages/default/default.nix` with another `rustPlatform`.
 
-### Pre-commit Hooks
+### Add build inputs
 
-Defined in `develop/checks/git-hooks/default.nix`. Runs on every commit:
+The package build uses `pkg-config` as a native build input and `openssl` as a build input. Add other libraries to `nativeBuildInputs` or `buildInputs` in `develop/packages/default/default.nix`.
+
+### Pre-commit hooks
+
+`develop/checks/git-hooks/default.nix` enables six hooks:
 
 | Hook | What it checks |
 |------|----------------|
@@ -71,34 +69,41 @@ Defined in `develop/checks/git-hooks/default.nix`. Runs on every commit:
 | `clippy` | Rust lint warnings |
 | `rustfmt` | Rust code formatting |
 
-### Pin Dependencies
+The `cargo-check` hook runs with the package's `buildInputs` and `nativeBuildInputs`, so `openssl` and `pkg-config` are available during the check.
 
-Dependencies are locked via `Cargo.lock`. Builds are fully reproducible when combined with Nix’s hashed fetchers. The package builder at `develop/packages/default/default.nix` reads lockFile directly:
+### Dependencies
+
+Dependency versions are recorded in `Cargo.lock`. The package build reads the lock file directly:
 
 ```nix
 cargoLock.lockFile = ../../../Cargo.lock;
 ```
 
-## Project Structure
+Run `cargo update` to update the lock file, then rebuild with `nix build`.
+
+## Project structure
 
 ```
-rust/
-├── flake.nix                         # flake entrypoint → purr.mkFlake
-├── Cargo.toml                        # package manifest
-├── Cargo.lock                        # pinned dep tree
+.
+├── flake.nix                          # flake entrypoint
+├── Cargo.toml                         # package manifest
+├── Cargo.lock                         # dependency lock file
+├── .envrc                             # direnv integration (use flake)
+├── .gitignore
 ├── src/
-│   └── main.rs                       # crate entrypoint
-├── develop/
-│   ├── packages/default/default.nix  # nix build → buildRustPackage
-│   ├── shells/default/default.nix    # nix develop → mkShell
-│   └── checks/git-hooks/default.nix  # pre-commit hooks
-├── .envrc                            # direnv auto-load
-└── .gitignore
+│   └── main.rs                        # crate entry point
+└── develop/
+    ├── packages/default/default.nix   # buildRustPackage derivation
+    ├── shells/default/default.nix     # development shell
+    └── checks/git-hooks/default.nix   # pre-commit hooks
 ```
 
-## Why This Exists
+## Useful commands
 
-- **Reproducible**: The same lockfile + Nix closure = the same binary every time.
-- **Guardrails**: Zero-warning CI won’t let sloppy code through.
-- **Editor-ready**: `RUST_SRC_PATH` wired up so `rust-analyzer` resolves stdlib sources out of the box.
-- **Offline-capable**: All tooling comes from the `/nix/store` — no network needed after initial fetch.
+```bash
+direnv allow        # load the development shell
+nix develop         # load the shell without direnv
+cargo build         # build the crate
+nix build           # build the default package
+nix flake check     # run the flake checks, including the git hooks
+```
